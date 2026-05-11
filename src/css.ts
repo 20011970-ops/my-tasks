@@ -1,4 +1,4 @@
-/* ===== CSS 변수 (라이트 모드) ===== */
+export const CSS = `/* ===== CSS 변수 (라이트 모드) ===== */
 :root {
   --bg-main: #f3f4f8;
   --bg-card: #ffffff;
@@ -950,3 +950,4 @@ body {
   .filter-tabs { gap: 4px; }
   .filter-tab { padding: 6px 10px; font-size: 0.8rem; }
 }
+`;

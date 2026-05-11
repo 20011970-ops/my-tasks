@@ -1,21 +1,136 @@
-```txt
-npm install
-npm run dev
+# ✅ My Tasks - 할 일 관리 앱
+
+## 프로젝트 개요
+- **앱 이름**: My Tasks
+- **목표**: 매일 10~20개의 할 일을 간단히 기록하고, 완료 여부 체크 및 카테고리별 분류로 진행률을 한눈에 파악하는 개인용 웹 앱
+- **기술 스택**: Hono + TypeScript + Vanilla JS + CSS3
+- **데이터 저장**: localStorage (새로고침 후에도 데이터 유지)
+
+---
+
+## 현재 완료된 기능
+
+### 핵심 기능
+- ✅ **할 일 추가** — 카테고리 선택 후 내용 입력, 추가 버튼 or Enter 키
+- ✅ **할 일 수정** — 수정 버튼(✏️) 클릭 or 내용 더블클릭으로 모달 수정
+- ✅ **할 일 삭제** — 개별 삭제(✕ 버튼) + 완료된 항목 일괄 삭제
+- ✅ **완료 체크** — 체크박스 클릭으로 완료 처리 (취소선 표시)
+- ✅ **카테고리 분류** — 업무 💼 / 개인 🏠 / 공부 📚
+- ✅ **진행률 표시** — 전체 진행률 (N/N 완료, %) + 카테고리별 진행 카드
+- ✅ **오늘 추가 수** 표시
+
+### 편의 기능
+- ✅ **검색** — 실시간 할 일 내용 검색
+- ✅ **정렬** — 최신순 / 오래된순 / 이름순 / 카테고리순
+- ✅ **필터 탭** — 전체 / 업무 / 개인 / 공부 탭으로 빠른 필터
+- ✅ **내보내기** — 할 일 목록을 JSON 파일로 저장 (📤)
+- ✅ **가져오기** — JSON 파일 불러오기 (📥) + 드래그 앤 드롭 지원
+- ✅ **다크모드** — 🌙/☀️ 토글 버튼 + 시스템 설정 자동 감지
+- ✅ **키보드 단축키** — `Alt+N`: 입력창 포커스, `ESC`: 모달 닫기, `Enter`: 빠른 추가
+- ✅ **동기부여 메시지** — 완료율에 따라 변경되는 응원 문구
+- ✅ **상대 시간 표시** — "방금 전 / N분 전 / N일 전" 형식
+- ✅ **토스트 알림** — 추가/수정/삭제/완료 시 피드백 알림
+- ✅ **반응형 디자인** — 모바일 대응
+
+---
+
+## 기능 진입 경로 (URI & 인터랙션)
+
+| 기능 | 방법 |
+|------|------|
+| 메인 화면 | `GET /` |
+| CSS 스타일 | `GET /static/style.css` |
+| JS 앱 로직 | `GET /static/app.js` |
+| 할 일 추가 | 카테고리 선택 → 입력창에 내용 → 추가 버튼 or Enter |
+| 할 일 수정 | ✏️ 버튼 클릭 or 내용 더블클릭 → 모달에서 수정 → 저장 |
+| 할 일 삭제 | ✕ 버튼 클릭 → 확인 팝업 |
+| 완료 체크 | 체크박스 클릭 |
+| 카테고리 필터 | 상단 탭 (전체 / 업무 / 개인 / 공부) 클릭 |
+| 검색 | 검색창에 입력 (실시간 필터) |
+| 정렬 변경 | 정렬 드롭다운 선택 |
+| 내보내기 | 📤 내보내기 버튼 클릭 → JSON 파일 다운로드 |
+| 가져오기 | 📥 가져오기 버튼 클릭 or JSON 파일 드래그 앤 드롭 |
+| 다크모드 | 우측 상단 🌙/☀️ 버튼 클릭 |
+| 새 할 일 포커스 | `Alt + N` 단축키 |
+
+---
+
+## 데이터 구조
+
+```json
+{
+  "id": "uuid-string",
+  "text": "할 일 내용 (최대 100자)",
+  "category": "업무 | 개인 | 공부",
+  "completed": false,
+  "createdAt": "2026-05-11T00:00:00.000Z"
+}
 ```
 
-```txt
-npm run deploy
+- **저장소**: `localStorage` (키: `myTasks_v1`)
+- **테마 저장**: `localStorage` (키: `myTasks_theme`)
+- **내보내기 형식**: `{ exportedAt, version, tasks: [...] }`
+
+---
+
+## 색상 시스템
+
+| 항목 | 색상 |
+|------|------|
+| 주 브랜드 | 보라색 `#7C3AED` |
+| 업무 | 파란색 `#3B82F6` |
+| 개인 | 초록색 `#10B981` |
+| 공부 | 연보라 `#8B5CF6` |
+| 삭제 | 빨간색 `#EF4444` |
+| 완료 일괄삭제 | 분홍색 `#F472B6` |
+
+---
+
+## 프로젝트 구조
+
+```
+webapp/
+├── src/
+│   ├── index.tsx      # Hono 라우터 + HTML 템플릿
+│   ├── css.ts         # CSS 스타일 (TS 모듈로 임베드)
+│   └── js.ts          # 앱 JS 로직 (TS 모듈로 임베드)
+├── public/
+│   └── static/
+│       ├── style.css  # 원본 CSS (개발용)
+│       └── app.js     # 원본 JS (개발용)
+├── dist/              # 빌드 산출물 (Cloudflare Pages 배포용)
+├── ecosystem.config.cjs  # PM2 설정
+├── wrangler.jsonc     # Cloudflare 설정
+├── vite.config.ts     # Vite 빌드 설정
+└── package.json
 ```
 
-[For generating/synchronizing types based on your Worker configuration run](https://developers.cloudflare.com/workers/wrangler/commands/#types):
+---
 
-```txt
-npm run cf-typegen
-```
+## 미구현 / 향후 개선 사항
 
-Pass the `CloudflareBindings` as generics when instantiation `Hono`:
+- ⬜ 마감일(Due Date) 설정 및 알림
+- ⬜ 우선순위 설정 (높음 / 보통 / 낮음)
+- ⬜ 반복 할 일 기능
+- ⬜ 태그/레이블 추가
+- ⬜ 통계 대시보드 (주간/월간 완료율)
+- ⬜ 서브태스크 (체크리스트)
+- ⬜ 클라우드 동기화 (Cloudflare D1 연동)
 
-```ts
-// src/index.ts
-const app = new Hono<{ Bindings: CloudflareBindings }>()
-```
+---
+
+## 배포
+
+- **플랫폼**: Cloudflare Pages (준비 완료)
+- **로컬 실행**: `npm run build && pm2 start ecosystem.config.cjs`
+- **빌드 명령**: `npm run build`
+- **배포 명령**: `npm run build && wrangler pages deploy dist --project-name webapp`
+- **상태**: ✅ 로컬 개발 서버 실행 중 (포트 3000)
+- **기술**: Hono + Vite + Wrangler + Vanilla JS
+- **마지막 업데이트**: 2026-05-11
+
+---
+
+## PRD 문서
+
+📄 [My Tasks PRD 보기](https://www.genspark.ai/agents?id=1518e46b-ad13-4f45-b47d-ed375435ff46)
