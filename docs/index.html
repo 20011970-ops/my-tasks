@@ -1,0 +1,1696 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Tasks</title>
+  <style>
+/* ===== CSS 변수 (라이트 모드) ===== */
+:root {
+  --bg-main: #f3f4f8;
+  --bg-card: #ffffff;
+  --bg-input: #f9fafb;
+  --bg-header: #ffffff;
+  --text-primary: #1f2937;
+  --text-secondary: #6b7280;
+  --text-muted: #9ca3af;
+  --border: #e5e7eb;
+  --border-focus: #7c3aed;
+  --shadow: 0 2px 8px rgba(0,0,0,0.08);
+  --shadow-lg: 0 4px 20px rgba(0,0,0,0.12);
+
+  /* 브랜드 컬러 */
+  --primary: #7c3aed;
+  --primary-light: #ede9fe;
+  --primary-hover: #6d28d9;
+
+  /* 카테고리 */
+  --work-color: #3b82f6;
+  --work-bg: #eff6ff;
+  --work-border: #bfdbfe;
+  --personal-color: #10b981;
+  --personal-bg: #ecfdf5;
+  --personal-border: #a7f3d0;
+  --study-color: #8b5cf6;
+  --study-bg: #f5f3ff;
+  --study-border: #ddd6fe;
+
+  /* 위험 */
+  --danger: #ef4444;
+  --danger-bg: #fef2f2;
+  --danger-hover: #dc2626;
+  --pink: #f472b6;
+  --pink-bg: #fdf2f8;
+  --pink-hover: #ec4899;
+
+  /* 기타 */
+  --completed-opacity: 0.45;
+  --radius: 12px;
+  --radius-sm: 8px;
+  --transition: 0.2s ease;
+}
+
+/* ===== 다크 모드 ===== */
+body.dark {
+  --bg-main: #0f0f1a;
+  --bg-card: #1a1a2e;
+  --bg-input: #16213e;
+  --bg-header: #1a1a2e;
+  --text-primary: #f1f5f9;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --border: #2d2d4a;
+  --border-focus: #a78bfa;
+  --shadow: 0 2px 8px rgba(0,0,0,0.4);
+  --shadow-lg: 0 4px 20px rgba(0,0,0,0.5);
+
+  --primary: #a78bfa;
+  --primary-light: #2d1f5e;
+  --primary-hover: #8b5cf6;
+
+  --work-color: #60a5fa;
+  --work-bg: #1e3a5f;
+  --work-border: #2563eb;
+  --personal-color: #34d399;
+  --personal-bg: #064e3b;
+  --personal-border: #059669;
+  --study-color: #a78bfa;
+  --study-bg: #2d1b69;
+  --study-border: #7c3aed;
+
+  --danger: #f87171;
+  --danger-bg: #450a0a;
+  --danger-hover: #ef4444;
+  --pink: #f9a8d4;
+  --pink-bg: #4a0d2e;
+  --pink-hover: #f472b6;
+}
+
+/* ===== 리셋 & 기본 ===== */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Pretendard', 'Noto Sans KR', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: var(--bg-main);
+  color: var(--text-primary);
+  min-height: 100vh;
+  transition: background var(--transition), color var(--transition);
+  line-height: 1.6;
+}
+
+/* ===== 앱 컨테이너 ===== */
+.app-container {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 24px 16px 80px;
+}
+
+/* ===== 헤더 ===== */
+.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  padding: 20px 24px;
+  margin-bottom: 16px;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+}
+
+.app-title {
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: var(--primary);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  letter-spacing: -0.5px;
+}
+
+.title-icon {
+  font-size: 1.5rem;
+  filter: drop-shadow(0 1px 2px rgba(124,58,237,0.3));
+}
+
+.theme-toggle {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  background: var(--bg-input);
+  cursor: pointer;
+  font-size: 1.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition);
+  flex-shrink: 0;
+}
+
+.theme-toggle:hover {
+  border-color: var(--primary);
+  background: var(--primary-light);
+  transform: rotate(20deg) scale(1.1);
+}
+
+/* ===== 진행률 요약 섹션 ===== */
+.summary-section {
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  padding: 20px 24px;
+  margin-bottom: 16px;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+}
+
+.summary-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+  gap: 16px;
+}
+
+.summary-progress { flex: 1; }
+
+.summary-label {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+
+.summary-value {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+
+.progress-bar-wrap {
+  background: var(--border);
+  border-radius: 999px;
+  height: 8px;
+  overflow: hidden;
+  width: 100%;
+}
+
+.progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary), #a78bfa);
+  border-radius: 999px;
+  transition: width 0.5s cubic-bezier(.4,0,.2,1);
+}
+
+.summary-today {
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.summary-today-count {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: var(--primary);
+  line-height: 1;
+  margin-top: 4px;
+}
+
+/* 카테고리 카드 */
+.category-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.category-card {
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  border-left: 4px solid;
+  transition: transform var(--transition), box-shadow var(--transition);
+}
+
+.category-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow);
+}
+
+.card-work {
+  background: var(--work-bg);
+  border-color: var(--work-color);
+}
+
+.card-personal {
+  background: var(--personal-bg);
+  border-color: var(--personal-color);
+}
+
+.card-study {
+  background: var(--study-bg);
+  border-color: var(--study-color);
+}
+
+.category-card-name {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: 4px;
+}
+
+.category-card-count {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.motivation-message {
+  text-align: center;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  padding: 8px;
+  background: var(--primary-light);
+  border-radius: var(--radius-sm);
+  border: 1px dashed var(--primary);
+  opacity: 0.85;
+}
+
+/* ===== 검색 + 정렬 ===== */
+.search-sort-section {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.search-wrap {
+  flex: 1;
+  min-width: 200px;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.search-icon {
+  position: absolute;
+  left: 12px;
+  font-size: 0.95rem;
+  pointer-events: none;
+  color: var(--text-muted);
+}
+
+.search-input {
+  width: 100%;
+  padding: 10px 36px 10px 36px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg-card);
+  color: var(--text-primary);
+  font-size: 0.9rem;
+  transition: border-color var(--transition), box-shadow var(--transition);
+  outline: none;
+}
+
+.search-input:focus {
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 3px rgba(124,58,237,0.12);
+}
+
+.search-clear {
+  position: absolute;
+  right: 10px;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 0.85rem;
+  padding: 2px 6px;
+  border-radius: 4px;
+  transition: color var(--transition);
+}
+
+.search-clear:hover { color: var(--danger); }
+
+.sort-wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.sort-label {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.sort-select {
+  padding: 9px 12px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg-card);
+  color: var(--text-primary);
+  font-size: 0.88rem;
+  cursor: pointer;
+  outline: none;
+  transition: border-color var(--transition);
+}
+
+.sort-select:focus { border-color: var(--border-focus); }
+
+/* ===== 데이터 관리 버튼 ===== */
+.data-actions {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.btn-data {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  border: 1.5px solid var(--border);
+  background: var(--bg-card);
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.btn-data:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+  background: var(--primary-light);
+}
+
+/* ===== 필터 탭 ===== */
+.filter-section {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+
+.filter-tabs {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.filter-tab {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: 999px;
+  border: 1.5px solid var(--border);
+  background: var(--bg-card);
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.filter-tab:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.filter-tab.active {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.tab-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 5px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  background: rgba(255,255,255,0.25);
+  color: inherit;
+  line-height: 1;
+}
+
+.filter-tab:not(.active) .tab-badge {
+  background: var(--border);
+  color: var(--text-muted);
+}
+
+.btn-delete-completed {
+  padding: 7px 14px;
+  border-radius: 999px;
+  border: 1.5px solid var(--pink);
+  background: var(--pink-bg);
+  color: var(--pink);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition);
+  white-space: nowrap;
+}
+
+.btn-delete-completed:hover {
+  background: var(--pink);
+  color: #ffffff;
+}
+
+/* ===== 입력 섹션 ===== */
+.input-section {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+  flex-wrap: wrap;
+}
+
+.category-select {
+  padding: 10px 12px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg-input);
+  color: var(--text-primary);
+  font-size: 0.88rem;
+  cursor: pointer;
+  outline: none;
+  transition: border-color var(--transition);
+  flex-shrink: 0;
+}
+
+.category-select:focus { border-color: var(--border-focus); }
+
+.task-input {
+  flex: 1;
+  min-width: 160px;
+  padding: 10px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg-input);
+  color: var(--text-primary);
+  font-size: 0.95rem;
+  outline: none;
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+
+.task-input:focus {
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 3px rgba(124,58,237,0.12);
+}
+
+.task-input::placeholder { color: var(--text-muted); }
+
+.btn-add {
+  padding: 10px 22px;
+  background: var(--primary);
+  color: #ffffff;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background var(--transition), transform var(--transition);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.btn-add:hover {
+  background: var(--primary-hover);
+  transform: translateY(-1px);
+}
+
+.btn-add:active { transform: translateY(0); }
+
+/* ===== 할 일 목록 ===== */
+.task-list-section {
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+.task-list {
+  list-style: none;
+  padding: 0;
+}
+
+/* 할 일 아이템 */
+.task-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--border);
+  transition: background var(--transition);
+  position: relative;
+  animation: slideIn 0.25s ease;
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.task-item:last-child { border-bottom: none; }
+
+.task-item:hover { background: var(--bg-input); }
+
+/* 카테고리 색상 바 */
+.task-item::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  border-radius: 0;
+}
+
+.task-item[data-category="업무"]::before { background: var(--work-color); }
+.task-item[data-category="개인"]::before { background: var(--personal-color); }
+.task-item[data-category="공부"]::before { background: var(--study-color); }
+
+/* 체크박스 */
+.task-checkbox {
+  width: 20px;
+  height: 20px;
+  border-radius: 6px;
+  border: 2px solid var(--border);
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+  flex-shrink: 0;
+  position: relative;
+  transition: all var(--transition);
+  background: var(--bg-card);
+}
+
+.task-checkbox:checked {
+  background: var(--primary);
+  border-color: var(--primary);
+}
+
+.task-checkbox:checked::after {
+  content: '✓';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.task-checkbox:hover:not(:checked) { border-color: var(--primary); }
+
+/* 할 일 내용 영역 */
+.task-content {
+  flex: 1;
+  min-width: 0;
+  cursor: pointer;
+}
+
+.task-text {
+  font-size: 0.95rem;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: all var(--transition);
+  font-weight: 500;
+  display: block;
+  line-height: 1.5;
+}
+
+.task-item.completed .task-text {
+  text-decoration: line-through;
+  opacity: var(--completed-opacity);
+  color: var(--text-muted);
+}
+
+/* 인라인 수정 입력 */
+.task-edit-input {
+  width: 100%;
+  padding: 4px 8px;
+  border: 1.5px solid var(--border-focus);
+  border-radius: 6px;
+  background: var(--bg-card);
+  color: var(--text-primary);
+  font-size: 0.95rem;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(124,58,237,0.12);
+}
+
+/* 메타 정보 */
+.task-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+/* 카테고리 배지 */
+.category-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.badge-work {
+  background: var(--work-bg);
+  color: var(--work-color);
+  border: 1px solid var(--work-border);
+}
+
+.badge-personal {
+  background: var(--personal-bg);
+  color: var(--personal-color);
+  border: 1px solid var(--personal-border);
+}
+
+.badge-study {
+  background: var(--study-bg);
+  color: var(--study-color);
+  border: 1px solid var(--study-border);
+}
+
+/* 시간 */
+.task-time {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+/* 삭제 버튼 */
+.btn-delete {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: none;
+  background: var(--danger-bg);
+  color: var(--danger);
+  cursor: pointer;
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition);
+  flex-shrink: 0;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.btn-delete:hover {
+  background: var(--danger);
+  color: #ffffff;
+  transform: scale(1.1);
+}
+
+/* 수정 버튼 */
+.btn-edit {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: none;
+  background: var(--primary-light);
+  color: var(--primary);
+  cursor: pointer;
+  font-size: 0.82rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition);
+  flex-shrink: 0;
+}
+
+.btn-edit:hover {
+  background: var(--primary);
+  color: #ffffff;
+  transform: scale(1.1);
+}
+
+/* ===== 빈 상태 ===== */
+.empty-state {
+  padding: 60px 24px;
+  text-align: center;
+}
+
+.empty-icon {
+  font-size: 3rem;
+  margin-bottom: 12px;
+  opacity: 0.4;
+}
+
+.empty-text {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+}
+
+.empty-sub {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+/* ===== 수정 모달 ===== */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  backdrop-filter: blur(4px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.modal-box {
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  padding: 28px 24px;
+  width: 100%;
+  max-width: 420px;
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--border);
+  animation: slideUp 0.25s ease;
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.modal-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 16px;
+}
+
+.modal-select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg-input);
+  color: var(--text-primary);
+  font-size: 0.92rem;
+  margin-bottom: 12px;
+  outline: none;
+  cursor: pointer;
+  transition: border-color var(--transition);
+}
+
+.modal-select:focus { border-color: var(--border-focus); }
+
+.modal-input {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg-input);
+  color: var(--text-primary);
+  font-size: 0.95rem;
+  margin-bottom: 20px;
+  outline: none;
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+
+.modal-input:focus {
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 3px rgba(124,58,237,0.12);
+}
+
+.modal-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.btn-modal-cancel {
+  padding: 9px 20px;
+  border-radius: var(--radius-sm);
+  border: 1.5px solid var(--border);
+  background: var(--bg-input);
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.btn-modal-cancel:hover {
+  border-color: var(--text-secondary);
+  color: var(--text-primary);
+}
+
+.btn-modal-save {
+  padding: 9px 24px;
+  border-radius: var(--radius-sm);
+  border: none;
+  background: var(--primary);
+  color: #ffffff;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background var(--transition), transform var(--transition);
+}
+
+.btn-modal-save:hover {
+  background: var(--primary-hover);
+  transform: translateY(-1px);
+}
+
+/* ===== 토스트 알림 ===== */
+.toast {
+  position: fixed;
+  bottom: 28px;
+  left: 50%;
+  transform: translateX(-50%) translateY(80px);
+  background: #1f2937;
+  color: #f9fafb;
+  padding: 12px 24px;
+  border-radius: 999px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+  z-index: 2000;
+  opacity: 0;
+  transition: all 0.3s cubic-bezier(.4,0,.2,1);
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+.toast.success { background: #059669; }
+.toast.error   { background: #dc2626; }
+.toast.warning { background: #d97706; }
+.toast.info    { background: var(--primary); }
+
+/* ===== 완료된 항목 스타일 ===== */
+.task-item.completed {
+  opacity: 0.75;
+  background: var(--bg-input);
+}
+
+/* ===== 반응형 ===== */
+@media (max-width: 540px) {
+  .app-container { padding: 12px 10px 60px; }
+  .app-title { font-size: 1.4rem; }
+  .summary-today-count { font-size: 1.5rem; }
+  .category-cards { grid-template-columns: repeat(3, 1fr); gap: 6px; }
+  .category-card { padding: 10px; }
+  .category-card-name { font-size: 0.72rem; }
+  .filter-section { flex-direction: column; align-items: flex-start; }
+  .task-meta { gap: 6px; }
+  .task-time { display: none; }
+  .input-section { flex-direction: column; }
+  .task-input, .category-select, .btn-add { width: 100%; }
+}
+
+@media (max-width: 380px) {
+  .category-cards { grid-template-columns: 1fr; }
+  .filter-tabs { gap: 4px; }
+  .filter-tab { padding: 6px 10px; font-size: 0.8rem; }
+}
+
+  </style>
+</head>
+<body>
+  <div class="app-container">
+    <header class="app-header">
+      <h1 class="app-title">
+        <span class="title-icon">✅</span>
+        My Tasks
+      </h1>
+      <button class="theme-toggle" id="themeToggle" title="다크모드 전환" aria-label="다크모드 전환">
+        <span id="themeIcon">🌙</span>
+      </button>
+    </header>
+
+    <section class="summary-section" aria-label="진행률 요약">
+      <div class="summary-top">
+        <div class="summary-progress">
+          <div class="summary-label">전체 진행률</div>
+          <div class="summary-value" id="totalProgress">0/0 완료 (0%)</div>
+          <div class="progress-bar-wrap">
+            <div class="progress-bar" id="progressBar" style="width:0%"></div>
+          </div>
+        </div>
+        <div class="summary-today">
+          <div class="summary-label">오늘 추가</div>
+          <div class="summary-today-count" id="todayCount">0개</div>
+        </div>
+      </div>
+      <div class="category-cards">
+        <div class="category-card card-work">
+          <div class="category-card-name">💼 업무</div>
+          <div class="category-card-count" id="workCount">0/0</div>
+        </div>
+        <div class="category-card card-personal">
+          <div class="category-card-name">🏠 개인</div>
+          <div class="category-card-count" id="personalCount">0/0</div>
+        </div>
+        <div class="category-card card-study">
+          <div class="category-card-name">📚 공부</div>
+          <div class="category-card-count" id="studyCount">0/0</div>
+        </div>
+      </div>
+      <div class="motivation-message" id="motivationMsg">
+        💜 노력하는 모든 순간이 소중해요
+      </div>
+    </section>
+
+    <section class="search-sort-section" aria-label="검색 및 정렬">
+      <div class="search-wrap">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="searchInput" class="search-input" placeholder="할 일 검색..." aria-label="할 일 검색" />
+        <button class="search-clear" id="searchClear" title="검색 초기화" style="display:none">✕</button>
+      </div>
+      <div class="sort-wrap">
+        <label for="sortSelect" class="sort-label">정렬:</label>
+        <select id="sortSelect" class="sort-select" aria-label="정렬 기준">
+          <option value="newest">최신순</option>
+          <option value="oldest">오래된순</option>
+          <option value="name">이름순</option>
+          <option value="category">카테고리순</option>
+        </select>
+      </div>
+    </section>
+
+    <section class="data-actions" aria-label="데이터 관리">
+      <button class="btn-data" id="exportBtn"><span>📤</span> 내보내기</button>
+      <button class="btn-data" id="importBtn"><span>📥</span> 가져오기</button>
+      <input type="file" id="importFile" accept=".json" style="display:none" aria-label="JSON 파일 가져오기" />
+    </section>
+
+    <section class="filter-section" aria-label="카테고리 필터">
+      <div class="filter-tabs" role="tablist" aria-label="카테고리 탭">
+        <button class="filter-tab active" data-filter="all" role="tab" aria-selected="true">전체 <span class="tab-badge" id="badge-all">0</span></button>
+        <button class="filter-tab" data-filter="업무" role="tab" aria-selected="false">업무 <span class="tab-badge" id="badge-work">0</span></button>
+        <button class="filter-tab" data-filter="개인" role="tab" aria-selected="false">개인 <span class="tab-badge" id="badge-personal">0</span></button>
+        <button class="filter-tab" data-filter="공부" role="tab" aria-selected="false">공부 <span class="tab-badge" id="badge-study">0</span></button>
+      </div>
+      <button class="btn-delete-completed" id="deleteCompletedBtn">🗑 완료된 항목 삭제</button>
+    </section>
+
+    <section class="input-section" aria-label="할 일 추가">
+      <select id="categorySelect" class="category-select" aria-label="카테고리 선택">
+        <option value="업무">💼 업무</option>
+        <option value="개인">🏠 개인</option>
+        <option value="공부">📚 공부</option>
+      </select>
+      <input type="text" id="taskInput" class="task-input" placeholder="새로운 할 일을 입력하세요... (Alt+N)" maxlength="100" aria-label="할 일 입력" />
+      <button class="btn-add" id="addBtn">추가</button>
+    </section>
+
+    <main class="task-list-section" aria-label="할 일 목록">
+      <ul class="task-list" id="taskList" role="list" aria-live="polite"></ul>
+      <div class="empty-state" id="emptyState" style="display:none">
+        <div class="empty-icon">📋</div>
+        <div class="empty-text">할 일이 없습니다</div>
+        <div class="empty-sub">위에서 새 할 일을 추가해보세요!</div>
+      </div>
+    </main>
+  </div>
+
+  <div class="modal-overlay" id="editModal" style="display:none" role="dialog" aria-modal="true" aria-label="할 일 수정">
+    <div class="modal-box">
+      <h2 class="modal-title">✏️ 할 일 수정</h2>
+      <select id="editCategory" class="modal-select" aria-label="카테고리 수정">
+        <option value="업무">💼 업무</option>
+        <option value="개인">🏠 개인</option>
+        <option value="공부">📚 공부</option>
+      </select>
+      <input type="text" id="editInput" class="modal-input" maxlength="100" aria-label="할 일 내용 수정" />
+      <div class="modal-actions">
+        <button class="btn-modal-cancel" id="editCancelBtn">취소</button>
+        <button class="btn-modal-save" id="editSaveBtn">저장</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="alert" aria-live="assertive"></div>
+
+  <script>
+/* =====================================================
+   My Tasks - 할 일 관리 앱
+   순수 Vanilla JavaScript (ES6+)
+   데이터 영속성: localStorage
+   ===================================================== */
+
+'use strict';
+
+// ===== 상수 =====
+const STORAGE_KEY = 'myTasks_v1';
+const THEME_KEY   = 'myTasks_theme';
+
+const CATEGORY_MAP = {
+  '업무': { label: '💼 업무', badgeClass: 'badge-work' },
+  '개인': { label: '🏠 개인', badgeClass: 'badge-personal' },
+  '공부': { label: '📚 공부', badgeClass: 'badge-study' },
+};
+
+const MOTIVATIONS = [
+  '💜 노력하는 모든 순간이 소중해요',
+  '🌟 오늘도 한 걸음씩 나아가고 있어요',
+  '🔥 작은 습관이 큰 변화를 만들어요',
+  '✨ 집중력이 성공의 열쇠예요',
+  '🎯 목표를 향해 꾸준히 달려가요',
+  '💪 할 수 있어요, 충분히!',
+  '🌈 오늘 완료한 일이 내일의 자신감이 됩니다',
+];
+
+// ===== 앱 상태 =====
+let state = {
+  tasks: [],
+  filter: 'all',
+  sort: 'newest',
+  search: '',
+  editingId: null,
+};
+
+// ===== 유틸리티 =====
+const $ = (id) => document.getElementById(id);
+const uuid = () => crypto.randomUUID
+  ? crypto.randomUUID()
+  : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+
+function formatRelativeTime(isoString) {
+  const diff = Date.now() - new Date(isoString).getTime();
+  const seconds = Math.floor(diff / 1000);
+  if (seconds < 60)  return '방금 전';
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60)  return `${minutes}분 전`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24)    return `${hours}시간 전`;
+  const days = Math.floor(hours / 24);
+  if (days === 1)    return '어제';
+  if (days < 7)      return `${days}일 전`;
+  const weeks = Math.floor(days / 7);
+  if (weeks < 5)     return `${weeks}주 전`;
+  return new Date(isoString).toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' });
+}
+
+function isToday(isoString) {
+  const d = new Date(isoString);
+  const n = new Date();
+  return d.getFullYear() === n.getFullYear()
+    && d.getMonth() === n.getMonth()
+    && d.getDate() === n.getDate();
+}
+
+// ===== localStorage =====
+function loadTasks() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveTasks() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state.tasks));
+  } catch (e) {
+    showToast('저장 공간이 부족합니다', 'error');
+  }
+}
+
+// ===== 테마 =====
+function initTheme() {
+  const saved = localStorage.getItem(THEME_KEY);
+  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const isDark = saved ? saved === 'dark' : prefersDark;
+  applyTheme(isDark);
+}
+
+function applyTheme(isDark) {
+  document.body.classList.toggle('dark', isDark);
+  $('themeIcon').textContent = isDark ? '☀️' : '🌙';
+  localStorage.setItem(THEME_KEY, isDark ? 'dark' : 'light');
+}
+
+function toggleTheme() {
+  applyTheme(!document.body.classList.contains('dark'));
+}
+
+// ===== 데이터 필터링 & 정렬 =====
+function getFilteredTasks() {
+  let list = [...state.tasks];
+
+  // 카테고리 필터
+  if (state.filter !== 'all') {
+    list = list.filter(t => t.category === state.filter);
+  }
+
+  // 검색어 필터
+  if (state.search.trim()) {
+    const q = state.search.trim().toLowerCase();
+    list = list.filter(t => t.text.toLowerCase().includes(q));
+  }
+
+  // 정렬
+  list.sort((a, b) => {
+    switch (state.sort) {
+      case 'newest':   return new Date(b.createdAt) - new Date(a.createdAt);
+      case 'oldest':   return new Date(a.createdAt) - new Date(b.createdAt);
+      case 'name':     return a.text.localeCompare(b.text, 'ko');
+      case 'category': return a.category.localeCompare(b.category, 'ko');
+      default:         return 0;
+    }
+  });
+
+  return list;
+}
+
+// ===== 통계 계산 =====
+function calcStats() {
+  const all     = state.tasks;
+  const total   = all.length;
+  const done    = all.filter(t => t.completed).length;
+  const pct     = total > 0 ? Math.round((done / total) * 100) : 0;
+  const todayN  = all.filter(t => isToday(t.createdAt)).length;
+
+  const byCat = (cat) => ({
+    total: all.filter(t => t.category === cat).length,
+    done:  all.filter(t => t.category === cat && t.completed).length,
+  });
+
+  return { total, done, pct, todayN, work: byCat('업무'), personal: byCat('개인'), study: byCat('공부') };
+}
+
+// ===== UI 업데이트 =====
+function updateSummary() {
+  const s = calcStats();
+
+  $('totalProgress').textContent = `${s.done}/${s.total} 완료 (${s.pct}%)`;
+  $('progressBar').style.width   = `${s.pct}%`;
+  $('todayCount').textContent    = `${s.todayN}개`;
+
+  $('workCount').textContent     = `${s.work.done}/${s.work.total}`;
+  $('personalCount').textContent = `${s.personal.done}/${s.personal.total}`;
+  $('studyCount').textContent    = `${s.study.done}/${s.study.total}`;
+
+  // 탭 배지
+  const filtered = getFilteredCountsByCategory();
+  $('badge-all').textContent      = state.tasks.length;
+  $('badge-work').textContent     = s.work.total;
+  $('badge-personal').textContent = s.personal.total;
+  $('badge-study').textContent    = s.study.total;
+
+  // 동기부여 메시지 (완료율에 따라 변경)
+  const idx = Math.min(Math.floor(s.pct / 15), MOTIVATIONS.length - 1);
+  $('motivationMsg').textContent = MOTIVATIONS[idx];
+}
+
+function getFilteredCountsByCategory() {
+  return {
+    all:      state.tasks.length,
+    work:     state.tasks.filter(t => t.category === '업무').length,
+    personal: state.tasks.filter(t => t.category === '개인').length,
+    study:    state.tasks.filter(t => t.category === '공부').length,
+  };
+}
+
+function renderTasks() {
+  const list = getFilteredTasks();
+  const ul   = $('taskList');
+  const empty = $('emptyState');
+
+  ul.innerHTML = '';
+
+  if (list.length === 0) {
+    empty.style.display = 'block';
+    return;
+  }
+
+  empty.style.display = 'none';
+
+  const fragment = document.createDocumentFragment();
+  list.forEach(task => {
+    const li = createTaskElement(task);
+    fragment.appendChild(li);
+  });
+  ul.appendChild(fragment);
+}
+
+function createTaskElement(task) {
+  const li = document.createElement('li');
+  li.className  = `task-item${task.completed ? ' completed' : ''}`;
+  li.dataset.id = task.id;
+  li.dataset.category = task.category;
+
+  const badgeInfo = CATEGORY_MAP[task.category] || CATEGORY_MAP['업무'];
+  const timeStr   = formatRelativeTime(task.createdAt);
+
+  li.innerHTML = `
+    <input
+      type="checkbox"
+      class="task-checkbox"
+      ${task.completed ? 'checked' : ''}
+      aria-label="${task.text} 완료 체크"
+      title="완료 체크"
+    />
+    <div class="task-content" title="더블클릭으로 수정">
+      <span class="task-text">${escapeHtml(task.text)}</span>
+    </div>
+    <div class="task-meta">
+      <span class="category-badge ${badgeInfo.badgeClass}">${task.category}</span>
+      <span class="task-time" title="${new Date(task.createdAt).toLocaleString('ko-KR')}">${timeStr}</span>
+      <button class="btn-edit" data-id="${task.id}" title="수정" aria-label="${task.text} 수정">✏️</button>
+      <button class="btn-delete" data-id="${task.id}" title="삭제" aria-label="${task.text} 삭제">✕</button>
+    </div>
+  `;
+
+  // 체크박스
+  li.querySelector('.task-checkbox').addEventListener('change', (e) => {
+    toggleComplete(task.id, e.target.checked);
+  });
+
+  // 더블클릭 수정
+  li.querySelector('.task-content').addEventListener('dblclick', () => {
+    openEditModal(task.id);
+  });
+
+  // 수정 버튼
+  li.querySelector('.btn-edit').addEventListener('click', (e) => {
+    e.stopPropagation();
+    openEditModal(task.id);
+  });
+
+  // 삭제 버튼
+  li.querySelector('.btn-delete').addEventListener('click', (e) => {
+    e.stopPropagation();
+    deleteTask(task.id);
+  });
+
+  return li;
+}
+
+function escapeHtml(str) {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+// ===== CRUD =====
+function addTask(text, category) {
+  text = text.trim();
+  if (!text) {
+    showToast('할 일 내용을 입력해주세요', 'warning');
+    $('taskInput').focus();
+    return;
+  }
+  if (text.length > 100) {
+    showToast('100자 이내로 입력해주세요', 'warning');
+    return;
+  }
+
+  const task = {
+    id:        uuid(),
+    text,
+    category,
+    completed: false,
+    createdAt: new Date().toISOString(),
+  };
+
+  state.tasks.unshift(task);
+  saveTasks();
+  updateSummary();
+  renderTasks();
+
+  $('taskInput').value = '';
+  $('taskInput').focus();
+  showToast('할 일이 추가되었습니다 ✅', 'success');
+}
+
+function toggleComplete(id, completed) {
+  const task = state.tasks.find(t => t.id === id);
+  if (!task) return;
+
+  task.completed = completed;
+  saveTasks();
+  updateSummary();
+  renderTasks();
+
+  if (completed) {
+    showToast('완료! 수고하셨습니다 🎉', 'success');
+  }
+}
+
+function deleteTask(id) {
+  const task = state.tasks.find(t => t.id === id);
+  if (!task) return;
+
+  if (!confirm(`"${task.text}" 을(를) 삭제하시겠습니까?`)) return;
+
+  state.tasks = state.tasks.filter(t => t.id !== id);
+  saveTasks();
+  updateSummary();
+  renderTasks();
+  showToast('삭제되었습니다', 'info');
+}
+
+function deleteCompletedTasks() {
+  const count = state.tasks.filter(t => t.completed).length;
+  if (count === 0) {
+    showToast('완료된 항목이 없습니다', 'warning');
+    return;
+  }
+  if (!confirm(`완료된 항목 ${count}개를 모두 삭제하시겠습니까?`)) return;
+
+  state.tasks = state.tasks.filter(t => !t.completed);
+  saveTasks();
+  updateSummary();
+  renderTasks();
+  showToast(`${count}개 항목이 삭제되었습니다`, 'info');
+}
+
+function saveEditedTask(id, text, category) {
+  text = text.trim();
+  if (!text) {
+    showToast('할 일 내용을 입력해주세요', 'warning');
+    return false;
+  }
+  if (text.length > 100) {
+    showToast('100자 이내로 입력해주세요', 'warning');
+    return false;
+  }
+
+  const task = state.tasks.find(t => t.id === id);
+  if (!task) return false;
+
+  task.text     = text;
+  task.category = category;
+  saveTasks();
+  updateSummary();
+  renderTasks();
+  showToast('수정되었습니다 ✏️', 'info');
+  return true;
+}
+
+// ===== 수정 모달 =====
+function openEditModal(id) {
+  const task = state.tasks.find(t => t.id === id);
+  if (!task) return;
+
+  state.editingId = id;
+  $('editInput').value    = task.text;
+  $('editCategory').value = task.category;
+  $('editModal').style.display = 'flex';
+  setTimeout(() => $('editInput').focus(), 50);
+}
+
+function closeEditModal() {
+  $('editModal').style.display = 'none';
+  state.editingId = null;
+}
+
+// ===== 내보내기 / 가져오기 =====
+function exportTasks() {
+  if (state.tasks.length === 0) {
+    showToast('내보낼 할 일이 없습니다', 'warning');
+    return;
+  }
+
+  const data = {
+    exportedAt: new Date().toISOString(),
+    version:    1,
+    tasks:      state.tasks,
+  };
+
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  const date = new Date().toISOString().slice(0, 10);
+
+  a.href     = url;
+  a.download = `my-tasks-${date}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast(`${state.tasks.length}개 항목을 내보냈습니다 📤`, 'success');
+}
+
+function importTasks(file) {
+  if (!file) return;
+  if (!file.name.endsWith('.json')) {
+    showToast('JSON 파일만 가져올 수 있습니다', 'error');
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      const raw = JSON.parse(e.target.result);
+
+      // 데이터 구조 검증
+      let imported = [];
+      if (Array.isArray(raw)) {
+        imported = raw;
+      } else if (raw.tasks && Array.isArray(raw.tasks)) {
+        imported = raw.tasks;
+      } else {
+        throw new Error('올바르지 않은 형식입니다');
+      }
+
+      // 각 항목 유효성 검사
+      const valid = imported.filter(t =>
+        t && typeof t.id === 'string'
+          && typeof t.text === 'string'
+          && ['업무', '개인', '공부'].includes(t.category)
+          && typeof t.completed === 'boolean'
+          && typeof t.createdAt === 'string'
+      );
+
+      if (valid.length === 0) {
+        showToast('가져올 수 있는 항목이 없습니다', 'error');
+        return;
+      }
+
+      const existingIds = new Set(state.tasks.map(t => t.id));
+      const newTasks    = valid.filter(t => !existingIds.has(t.id));
+
+      state.tasks = [...newTasks, ...state.tasks];
+      saveTasks();
+      updateSummary();
+      renderTasks();
+      showToast(`${newTasks.length}개 항목을 가져왔습니다 📥`, 'success');
+    } catch (err) {
+      showToast('파일을 읽을 수 없습니다: ' + err.message, 'error');
+    }
+  };
+  reader.readAsText(file);
+}
+
+// ===== 토스트 =====
+let toastTimer = null;
+function showToast(msg, type = 'info') {
+  const el = $('toast');
+  el.textContent = msg;
+  el.className   = `toast ${type} show`;
+
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => {
+    el.classList.remove('show');
+  }, 2800);
+}
+
+// ===== 이벤트 등록 =====
+function bindEvents() {
+  // 테마 토글
+  $('themeToggle').addEventListener('click', toggleTheme);
+
+  // 할 일 추가
+  $('addBtn').addEventListener('click', () => {
+    addTask($('taskInput').value, $('categorySelect').value);
+  });
+
+  $('taskInput').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.isComposing) {
+      addTask($('taskInput').value, $('categorySelect').value);
+    }
+  });
+
+  // 키보드 단축키
+  document.addEventListener('keydown', (e) => {
+    // Alt + N: 입력창 포커스
+    if (e.altKey && e.key === 'n') {
+      e.preventDefault();
+      $('taskInput').focus();
+      $('taskInput').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+    // ESC: 모달 닫기
+    if (e.key === 'Escape') {
+      closeEditModal();
+    }
+  });
+
+  // 검색
+  $('searchInput').addEventListener('input', (e) => {
+    state.search = e.target.value;
+    $('searchClear').style.display = state.search ? 'block' : 'none';
+    renderTasks();
+    updateSummary();
+  });
+
+  $('searchClear').addEventListener('click', () => {
+    $('searchInput').value = '';
+    state.search = '';
+    $('searchClear').style.display = 'none';
+    $('searchInput').focus();
+    renderTasks();
+    updateSummary();
+  });
+
+  // 정렬
+  $('sortSelect').addEventListener('change', (e) => {
+    state.sort = e.target.value;
+    renderTasks();
+  });
+
+  // 필터 탭
+  document.querySelectorAll('.filter-tab').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.filter-tab').forEach(b => {
+        b.classList.remove('active');
+        b.setAttribute('aria-selected', 'false');
+      });
+      btn.classList.add('active');
+      btn.setAttribute('aria-selected', 'true');
+      state.filter = btn.dataset.filter;
+      renderTasks();
+    });
+  });
+
+  // 완료된 항목 삭제
+  $('deleteCompletedBtn').addEventListener('click', deleteCompletedTasks);
+
+  // 내보내기
+  $('exportBtn').addEventListener('click', exportTasks);
+
+  // 가져오기
+  $('importBtn').addEventListener('click', () => $('importFile').click());
+
+  $('importFile').addEventListener('change', (e) => {
+    importTasks(e.target.files[0]);
+    e.target.value = ''; // 같은 파일 재선택 허용
+  });
+
+  // 수정 모달 저장
+  $('editSaveBtn').addEventListener('click', () => {
+    if (saveEditedTask(state.editingId, $('editInput').value, $('editCategory').value)) {
+      closeEditModal();
+    }
+  });
+
+  $('editInput').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.isComposing) {
+      if (saveEditedTask(state.editingId, $('editInput').value, $('editCategory').value)) {
+        closeEditModal();
+      }
+    }
+  });
+
+  // 수정 모달 취소
+  $('editCancelBtn').addEventListener('click', closeEditModal);
+
+  // 모달 외부 클릭 닫기
+  $('editModal').addEventListener('click', (e) => {
+    if (e.target === $('editModal')) closeEditModal();
+  });
+
+  // 드래그 앤 드롭 가져오기 (보너스 기능)
+  document.addEventListener('dragover', (e) => e.preventDefault());
+  document.addEventListener('drop', (e) => {
+    e.preventDefault();
+    const file = e.dataTransfer?.files?.[0];
+    if (file && file.name.endsWith('.json')) {
+      importTasks(file);
+    }
+  });
+}
+
+// ===== 초기화 =====
+function init() {
+  // 테마 초기화
+  initTheme();
+
+  // 데이터 로드
+  state.tasks = loadTasks();
+
+  // 이벤트 바인딩
+  bindEvents();
+
+  // 첫 렌더링
+  updateSummary();
+  renderTasks();
+
+  // 1분마다 상대 시간 업데이트
+  setInterval(() => {
+    renderTasks();
+  }, 60 * 1000);
+
+  console.info('✅ My Tasks 앱이 시작되었습니다. 단축키: Alt+N (새 할 일 추가)');
+}
+
+// DOM 준비 후 실행
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', init);
+} else {
+  init();
+}
+
+  </script>
+</body>
+</html>
